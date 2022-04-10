@@ -14,6 +14,7 @@ if __name__ == "__main__":
     Base.metadata.create_all(engine)
 
     tm = task.TaskModel(task_type = 'ss')
+    print(tm.dict())
     tm.save()
 
 

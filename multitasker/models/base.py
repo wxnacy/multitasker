@@ -74,6 +74,14 @@ class BaseDB(object):
         session.commit()
 
     @classmethod
+    def count(cls, query):
+        """TODO: Docstring for count.
+        :returns: TODO
+
+        """
+        return session.query(cls.id).filter_by(**query).count()
+
+    @classmethod
     def update(cls, query, update_data):
         """修改数据
 
@@ -87,16 +95,6 @@ class BaseDB(object):
                 setattr(item, k, v)
             item.save()
 
-    @classmethod
-    def update_success(cls, _id):
-        """修改数据
-
-        :query: TODO
-        :update_data: TODO
-        :returns: TODO
-
-        """
-        cls.update({"id": _id}, { "status": TaskStatus.SUCCESS.value })
 
     def dict(self):
         return self.__dict__

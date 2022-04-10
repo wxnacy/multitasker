@@ -24,6 +24,7 @@ VERSION = None
 # What packages are required for this module to be executed?
 REQUIRED = [
     'sqlalchemy',
+    'rich',
     'wpy',
 ]
 
