@@ -90,7 +90,7 @@ if __name__ == "__main__":
     #  video_id = args[0]
     tasker = FileSystemTasker(action = 'copy',
         from_file = os.path.expanduser('~/Downloads/dltest'),
-        to_file = '/tmp/test'
+        to_file = '/tmp/test/dl'
     )
     tasker.build()
     b = time.time()

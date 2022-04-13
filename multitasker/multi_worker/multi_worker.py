@@ -3,7 +3,6 @@
 # Author: wxnacy <wxnacy@gmail.com>
 # Description:
 
-#  from gevent import monkey
 from gevent import monkey;
 #  monkey.patch_all(thread=False)
 monkey.patch_all()
@@ -12,9 +11,9 @@ import gevent
 import time
 import traceback
 from gevent import pool
-
 from pydantic import BaseModel, Field
 
+from multitasker.common.event import stop_event
 from multitasker.multi_worker.models import (
     WorkModel,
     WorkerBuilder,
@@ -39,8 +38,6 @@ class MultiWorker():
     _pool = None
     builder: WorkerBuilder = Field(WorkerBuilder())
 
-    #  def __init__(self, *args, **kwargs):
-        #  super().__init__(*args, **kwargs)
     def __init__(self, builder: WorkerBuilder = None):
         if not builder:
             builder = WorkerBuilder()
@@ -71,22 +68,37 @@ class MultiWorker():
                 lambda x: not x.is_succ, self.works)))
             if not failed_count:
                 break
-            time.sleep(5)
+            if stop_event.is_set():
+                break
+            time.sleep(self.builder.retry_interval)
 
     def _run_works(self):
 
         jobs = []
-        for work in self.works:
+        for i, work in enumerate(self.works):
+            if stop_event.is_set():
+                break
             if work.is_succ:
                 continue
             job = self._pool.spawn(run_work, work)
             jobs.append(job)
-            if len(jobs) == self.builder.max_open_file_count:
+            if len(jobs) == self.builder.max_open_file_count \
+                    or i + 1 == len(self.works):
                 gevent.joinall(jobs, timeout = self.builder.timeout)
                 jobs = []
 
-        if jobs:
-            gevent.joinall(jobs, timeout = self.builder.timeout)
+    #  def generate_works(self):
+        #  need_works = [o for o in self.works if ]
+        #  total = len(self.works)
+        #  size = self.builder.max_open_file_count
+        #  total_page = int(total / size) + 1
+        #  for page in range(total_page):
+            #  start = page * size
+            #  end = start + size
+            #  _works = self.works[start:end]
+            #  if not _works:
+                #  break
+            #  yield _works
 
     def print_response(self):
         print('Total:', len(self.works))

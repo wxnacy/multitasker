@@ -13,9 +13,10 @@ from typing import (
 )
 
 class WorkerBuilder(BaseModel):
-    pool_size: int = 10
+    pool_size: int = 8
     max_open_file_count: int = 128
-    max_run_times: int = 10
+    max_run_times: int = 3
+    retry_interval: float = 0.5
     timeout: int = 10
 
 
