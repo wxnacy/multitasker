@@ -17,3 +17,7 @@ class WorkRunTypeEnum(BaseEnum):
         return cls.GEVENT
 
 
+class WorkStatusEnum(BaseEnum):
+    SUCCESS = 'success'
+    FAILED = 'failed'
+    STOP = 'stop'

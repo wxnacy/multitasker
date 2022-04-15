@@ -13,6 +13,7 @@ import traceback
 from gevent import pool
 from pydantic import BaseModel, Field
 
+from multitasker.exceptions import StopException
 from multitasker.common.event import stop_event
 from multitasker.multi_worker.models import (
     WorkModel,
@@ -23,8 +24,11 @@ def run_work(work: WorkModel):
 
     if work.run_times >= 4:
         return
+    is_succ = False
     try:
         is_succ = work.func(*work.func_args)
+    except StopException:
+        print('work stop')
     except:
         traceback.print_exc()
         is_succ = False
@@ -39,8 +43,6 @@ class MultiWorker():
     builder: WorkerBuilder = Field(WorkerBuilder())
 
     def __init__(self, builder: WorkerBuilder = WorkerBuilder()):
-        #  if not builder:
-            #  builder = WorkerBuilder()
         self.builder = builder
         self.works.extend(self.builder.works)
         self._pool = pool.Pool(self.builder.pool_size)
@@ -67,11 +69,12 @@ class MultiWorker():
             self.run_func()
             failed_count = len(list(filter(
                 lambda x: not x.is_succ, self.works)))
+            if self.builder.is_break:
+                print('break')
+                break
             if not failed_count:
                 break
             if stop_event.is_set():
-                break
-            if self.builder.is_break:
                 break
             time.sleep(self.builder.retry_interval)
 
@@ -79,9 +82,10 @@ class MultiWorker():
 
         jobs = []
         for i, work in enumerate(self.works):
-            if stop_event.is_set():
-                break
             if self.builder.is_break:
+                print('gevent break')
+                break
+            if stop_event.is_set():
                 break
             if work.is_succ:
                 continue

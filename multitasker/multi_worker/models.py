@@ -12,7 +12,10 @@ from typing import (
     Union
 )
 
-from multitasker.multi_worker.enums import WorkRunTypeEnum
+from multitasker.multi_worker.enums import (
+    WorkRunTypeEnum,
+    WorkStatusEnum
+)
 
 
 class WorkModel(BaseModel):
@@ -40,3 +43,7 @@ class WorkerBuilder(BaseModel):
         title="运行类型")
     works: List[WorkModel] = []
     is_break: bool = Field(False, title="是否终止")
+
+class WorkResponse(BaseModel):
+    status: WorkStatusEnum
+

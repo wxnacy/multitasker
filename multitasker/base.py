@@ -3,7 +3,10 @@
 # Author: wxnacy <wxnacy@gmail.com>
 # Description:
 
-from multitasker.multi_worker.multi_worker import MultiWorker
+from multitasker.multi_worker import (
+    WorkerBuilder,
+    MultiWorker
+)
 #  import multiprocessing as mp
 import threading
 
@@ -15,6 +18,7 @@ from multitasker.common.event import stop_event
 from multitasker.models.task import TaskModel, SubTaskModel
 from multitasker.models.enums import TaskStatusEnum
 from multitasker.progress import TaskProgress
+from multitasker.exceptions import StopException
 
 __all__ = ['MultiTasker']
 
@@ -29,6 +33,7 @@ class MultiTasker(metaclass=abc.ABCMeta):
     class Meta:
         task_id: str = str(uuid.uuid4())
         sub_task_funcs: Dict[str, Callable] = {}
+        worker_builder: WorkerBuilder
 
     @property
     def task_id(self) -> str:
@@ -48,6 +53,10 @@ class MultiTasker(metaclass=abc.ABCMeta):
     def task_type(self, value: str):
         self.Config.task_type = value
 
+    @property
+    def worker_builder(self) -> WorkerBuilder:
+        """doc"""
+        return self.Meta.worker_builder
 
     @abc.abstractmethod
     def build_task(self) -> dict:
@@ -83,11 +92,13 @@ class MultiTasker(metaclass=abc.ABCMeta):
 
         SubTaskModel.insert_many(sub_tasks)
 
+        # 赋值 worker_builder
+        self.Meta.worker_builder = WorkerBuilder()
 
         return self
 
     def run(self):
-        mw = MultiWorker()
+        mw = MultiWorker(self.worker_builder)
         sub_tasks = SubTaskModel.find({ "task_id": self.task_id})
         for i, sub_task in enumerate(sub_tasks):
             task_func = self.Meta.sub_task_funcs.get(
@@ -114,14 +125,21 @@ class MultiTasker(metaclass=abc.ABCMeta):
             return func
         return decorate
 
-    @classmethod
-    def exec_sub_task(cls, func, index, sub_task) -> bool:
+    def exec_sub_task(self, func, index, sub_task) -> bool:
         """执行子任务"""
         task = TaskModel.find_by_id(sub_task.task_id)
         if task.status == TaskStatusEnum.STOP.value:
-            return True
+            print('set break')
+            self.worker_builder.is_break = True
+            raise StopException
 
-        is_succ = func(sub_task)
+        is_succ = True
+        try:
+            is_succ = func(sub_task)
+        except StopException as e:
+            print(e)
+            task.update_status(TaskStatusEnum.STOP.value)
+
         if is_succ:
             sub_task.update_status(TaskStatusEnum.SUCCESS.value)
             finish_count = SubTaskModel.count({
