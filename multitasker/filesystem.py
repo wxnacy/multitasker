@@ -53,6 +53,9 @@ class FileSystemTasker(BaseModel, MultiTasker):
             sub_tasks = []
             for name in os.listdir(self.from_file):
                 from_path = os.path.join(self.from_file, name)
+                if os.path.isdir(from_path):
+                    # TODO 需要可以复制文件夹
+                    continue
                 to_path = os.path.join(to_dir, name)
 
                 sub_task = SubTaskModel(task_type = 'copy',
@@ -74,7 +77,12 @@ def sub_task_copy(sub_task) -> bool:
     fs = FSModel(**sub_task.detail)
     if os.path.exists(fs.to_path):
         return True
-    shutil.copy(fs.from_path, fs.to_path)
+    try:
+        shutil.copy(fs.from_path, fs.to_path)
+    except PermissionError as e:
+        print(e)
+    except OSError as e:
+        print(e)
     return True
 
 @FileSystemTasker.trigger_sub_task('move')
@@ -89,8 +97,9 @@ if __name__ == "__main__":
     args = sys.argv[1:]
     #  video_id = args[0]
     tasker = FileSystemTasker(action = 'copy',
-        from_file = os.path.expanduser('~/Downloads/dltest'),
-        to_file = '/tmp/test/dl'
+        #  from_file = os.getcwd(),
+        from_file = '/tmp',
+        to_file = '/tmp/test'
     )
     tasker.build()
     b = time.time()

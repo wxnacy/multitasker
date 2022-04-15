@@ -38,12 +38,15 @@ class MultiWorker():
     _pool = None
     builder: WorkerBuilder = Field(WorkerBuilder())
 
-    def __init__(self, builder: WorkerBuilder = None):
-        if not builder:
-            builder = WorkerBuilder()
+    def __init__(self, builder: WorkerBuilder = WorkerBuilder()):
+        #  if not builder:
+            #  builder = WorkerBuilder()
         self.builder = builder
-
+        self.works.extend(self.builder.works)
         self._pool = pool.Pool(self.builder.pool_size)
+
+        run_func_name = f"_run_works_by_{builder.run_type}"
+        self.run_func = getattr(self, run_func_name)
 
 
     def add_work(self, func, *func_args ):
@@ -54,32 +57,35 @@ class MultiWorker():
         :returns: TODO
 
         """
-        work = WorkModel(
-            work_id = len(self.works),
-            func = func, func_args = func_args)
+        work = WorkModel(func = func, func_args = func_args)
         self.works.append(work)
 
     def run(self):
         """运行
         """
         for i in range(self.builder.max_run_times):
-            self._run_works()
+            self.run_func()
             failed_count = len(list(filter(
                 lambda x: not x.is_succ, self.works)))
             if not failed_count:
                 break
             if stop_event.is_set():
                 break
+            if self.builder.is_break:
+                break
             time.sleep(self.builder.retry_interval)
 
-    def _run_works(self):
+    def _run_works_by_gevent(self):
 
         jobs = []
         for i, work in enumerate(self.works):
             if stop_event.is_set():
                 break
+            if self.builder.is_break:
+                break
             if work.is_succ:
                 continue
+
             job = self._pool.spawn(run_work, work)
             jobs.append(job)
             if len(jobs) == self.builder.max_open_file_count \

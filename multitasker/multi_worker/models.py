@@ -3,25 +3,20 @@
 # Author: wxnacy <wxnacy@gmail.com>
 # Description:
 
-#  import uuid
 from inspect import signature
 from pydantic import BaseModel, Field, validator
 from typing import (
     Callable,
     Optional,
+    List,
     Union
 )
 
-class WorkerBuilder(BaseModel):
-    pool_size: int = 8
-    max_open_file_count: int = 128
-    max_run_times: int = 3
-    retry_interval: float = 0.5
-    timeout: int = 10
+from multitasker.multi_worker.enums import WorkRunTypeEnum
 
 
 class WorkModel(BaseModel):
-    work_id: Union[str, int]
+    work_id: Union[str, int] = ""
     run_times: int = 0
     func: Callable[[], bool]
     func_args: Optional[list] = []
@@ -35,3 +30,13 @@ class WorkModel(BaseModel):
             raise ValueError("func must return bool")
         return v
 
+class WorkerBuilder(BaseModel):
+    pool_size: int = 8
+    max_open_file_count: int = 128
+    max_run_times: int = 3
+    retry_interval: float = 0.5
+    timeout: int = 10
+    run_type: WorkRunTypeEnum = Field(WorkRunTypeEnum.default(),
+        title="运行类型")
+    works: List[WorkModel] = []
+    is_break: bool = Field(False, title="是否终止")

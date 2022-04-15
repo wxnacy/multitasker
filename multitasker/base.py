@@ -4,7 +4,7 @@
 # Description:
 
 from multitasker.multi_worker.multi_worker import MultiWorker
-import multiprocessing as mp
+#  import multiprocessing as mp
 import threading
 
 import abc
@@ -95,14 +95,6 @@ class MultiTasker(metaclass=abc.ABCMeta):
             if not task_func:
                 raise RuntimeError(f"{sub_task.task_type} not has function")
             mw.add_work(self.exec_sub_task, task_func, i, sub_task)
-
-        #  mw.run()
-        #  mw.print_response()
-
-        #  p = mp.Process(target=print_progress, args=(self.task_id,), daemon=True)
-        #  p.start()
-        #  mw.run()
-        #  p.terminate()
 
         t = threading.Thread(target=print_progress, args=(self.task_id,))
         t.start()
