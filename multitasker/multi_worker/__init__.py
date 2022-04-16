@@ -2,5 +2,5 @@
 # -*- coding:utf-8 -*-
 # Author: wxnacy@gmail.com
 
-from multi_worker.models import *
-from multi_worker.multi_worker import *
+from multitasker.multi_worker.models import *
+from multitasker.multi_worker.multi_worker import *
