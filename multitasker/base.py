@@ -107,6 +107,9 @@ class MultiTasker(metaclass=abc.ABCMeta):
                 raise RuntimeError(f"{sub_task.task_type} not has function")
             mw.add_work(self.exec_sub_task, task_func, i, sub_task)
 
+        if not mw.works:
+            return
+
         t = threading.Thread(target=print_progress, args=(self.task_id,))
         t.start()
         mw.run()
@@ -153,3 +156,5 @@ class MultiTasker(metaclass=abc.ABCMeta):
 
         return is_succ
 
+    def get_subtasks(self) -> List[SubTaskModel]:
+        return list(SubTaskModel.find({ "task_id": self.task_id }))

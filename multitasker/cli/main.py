@@ -6,6 +6,7 @@
 #  from multitasker.models import task
 from multitasker.models.base import Base, engine
 from multitasker.filesystem import FileSystemTasker
+from multitasker.models.task import SubTaskModel
 
 import typer
 
@@ -29,6 +30,12 @@ def copy(from_path: str, to_path: str):
     tasker.build()
     tasker.run()
 
+@app.command()
+def test():
+    """
+    初始化数据库等信息
+    """
+    SubTaskModel.delete({ "task_type": "test" })
 
 if __name__ == "__main__":
     app()

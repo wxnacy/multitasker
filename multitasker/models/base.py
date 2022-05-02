@@ -5,8 +5,11 @@
 
 
 import uuid
-from sqlalchemy import create_engine
-from sqlalchemy import Column,  String
+from sqlalchemy import (
+    create_engine,
+    Column, String,
+    and_,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -71,6 +74,19 @@ class BaseDB(object):
 
         """
         session.execute(cls.__table__.insert(), items)
+        session.commit()
+
+    @classmethod
+    def delete(cls, query):
+        """删除
+
+        """
+        args = []
+        for key, value in query.items():
+            k = getattr(cls, key) == value
+            args.append(k)
+        sql = cls.__table__.delete().where(and_(*args))
+        session.execute(sql)
         session.commit()
 
     @classmethod
