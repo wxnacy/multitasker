@@ -3,7 +3,7 @@
 # Author: wxnacy <wxnacy@gmail.com>
 # Description: model 枚举模块
 
-from wpy.base import BaseEnum
+from wpy import BaseEnum
 
 class TaskStatusEnum(BaseEnum):
     INIT = 'init'

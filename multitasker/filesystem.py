@@ -11,7 +11,7 @@ import shutil
 from typing import List
 from pydantic import BaseModel
 
-from wpy.base import BaseEnum
+from wpy import BaseEnum
 
 class FSActionEnum(BaseEnum):
     COPY = 'copy'

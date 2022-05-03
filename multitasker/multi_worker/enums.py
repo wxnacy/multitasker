@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 # Description: 枚举模块
 
-from wpy.base import BaseEnum
+from wpy import BaseEnum
 
 
 class WorkRunTypeEnum(BaseEnum):
