@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "multitasker"
-version = "0.0.4"
+version = "0.0.5"
 description = "多任务处理器"
 authors = ["wxnacy <wxnacy@gmail.com>"]
 license = "MIT"

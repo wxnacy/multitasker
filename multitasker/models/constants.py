@@ -6,4 +6,4 @@
 
 import os
 
-DB_PATH = os.path.expanduser('~/multitasker.db')
+DB_PATH = os.path.expanduser('~/multitasker.db?check_same_thread=false')
