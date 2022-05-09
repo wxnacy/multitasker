@@ -18,7 +18,7 @@ class FSActionEnum(BaseEnum):
     MOVE = 'move'
 
 
-class FileSystemTasker(BaseModel, MultiTasker):
+class FileSystemTasker(MultiTasker):
 
     action: str
     from_file: str
@@ -27,8 +27,12 @@ class FileSystemTasker(BaseModel, MultiTasker):
     class Config:
         task_type = 'filesystem'
 
-    def build_task(self) -> dict:
+    def __init__(self, action: str, from_file: str, to_file: str):
+        self.action = action
+        self.from_file = from_file
+        self.to_file = to_file
 
+    def build_task(self) -> dict:
         return {}
 
     def build_sub_tasks(self) -> List[SubTaskModel]:
@@ -95,9 +99,7 @@ if __name__ == "__main__":
     import time
     import sys
     args = sys.argv[1:]
-    #  video_id = args[0]
     tasker = FileSystemTasker(action = 'copy',
-        #  from_file = os.getcwd(),
         from_file = '/tmp',
         to_file = '/tmp/test'
     )
@@ -106,4 +108,12 @@ if __name__ == "__main__":
     tasker.run()
     print(time.time() - b)
 
+    tasker = FileSystemTasker(action = 'copy',
+        from_file = '/tmp',
+        to_file = '/tmp/test'
+    )
+    tasker.build()
+    b = time.time()
+    tasker.run()
+    print(time.time() - b)
 

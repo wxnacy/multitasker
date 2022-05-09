@@ -31,7 +31,7 @@ class MultiTasker(metaclass=abc.ABCMeta):
         task_type: str
 
     class Meta:
-        task_id: str = str(uuid.uuid4())
+        task_id: str = uuid.uuid4().hex
         sub_task_funcs: Dict[str, Callable] = {}
         worker_builder: WorkerBuilder
 
@@ -41,7 +41,7 @@ class MultiTasker(metaclass=abc.ABCMeta):
         return self.Meta.task_id
 
     @task_id.setter
-    def _task_id(self, value: str):
+    def task_id(self, value: str):
         self.Meta.task_id = value
 
     @property
@@ -73,6 +73,7 @@ class MultiTasker(metaclass=abc.ABCMeta):
         pass
 
     def build(self):
+        self.task_id = uuid.uuid4().hex
         if not self.Config.task_type:
             raise ValueError("MultiTasker.Config.task_type is empty")
 

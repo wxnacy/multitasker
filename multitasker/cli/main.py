@@ -3,7 +3,6 @@
 # Author: wxnacy <wxnacy@gmail.com>
 # Description:
 
-#  from multitasker.models import task
 from multitasker.models.base import Base, engine
 from multitasker.filesystem import FileSystemTasker
 from multitasker.models.task import SubTaskModel
@@ -29,6 +28,13 @@ def copy(from_path: str, to_path: str):
     )
     tasker.build()
     tasker.run()
+
+    #  tasker = FileSystemTasker(action = 'copy',
+        #  from_file = from_path,
+        #  to_file = to_path + "/ss"
+    #  )
+    #  tasker.build()
+    #  tasker.run()
 
 @app.command()
 def test():
