@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "multitasker"
-version = "0.0.6"
+version = "0.0.7"
 description = "多任务处理器"
 authors = ["wxnacy <wxnacy@gmail.com>"]
 license = "MIT"
@@ -9,7 +9,7 @@ license = "MIT"
 multitasker = "multitasker.cli.main:app"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 SQLAlchemy = "^1.4.36"
 rich = "^12.3.0"
 wpy = "^0.7.1"
